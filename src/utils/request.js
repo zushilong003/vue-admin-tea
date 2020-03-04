@@ -2,6 +2,7 @@ import axios from 'axios'
 import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
+import qs from 'qs'
 // create an axios instance
 const service = axios.create({
   // baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
@@ -23,6 +24,7 @@ service.interceptors.request.use(
       console.info('print token=' + getToken())
       config.headers['X-Token'] = getToken()
     }
+
     return config
   },
   error => {
@@ -46,12 +48,12 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-    console.info(res)
     console.info(res.code)
+    console.info(res.msg)
     // if the custom code is not 20000, it is judged as an error.
     if (res.code !== 200) {
       Message({
-        message: res.message || 'error please check!',
+        message: res.msg || 'error please check!',
         type: 'error',
         duration: 5 * 1000
       })
@@ -64,7 +66,7 @@ service.interceptors.response.use(
           cancelButtonText: 'Cancel',
           type: 'warning'
         }).then(() => {
-          store.dispatch('user/resetToken').then(() => {
+          store.dispatch('/login?redirect=${to.path}').then(() => {
             location.reload()
           })
         })
